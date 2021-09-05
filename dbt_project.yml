@@ -9,7 +9,7 @@ test-paths: ["tests"]
 data-paths: ["data"]
 macro-paths: ["macros"]
 
-target-path: "target"
+target-path: "bigquery"
 clean-targets:
     - "target"
     - "dbt_modules"
