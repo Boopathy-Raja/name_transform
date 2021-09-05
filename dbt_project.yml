@@ -17,7 +17,7 @@ clean-targets:
 
 models:
   +pre-hook:
-    - "MERGE `voonik-tech.boopathy.final_name` T 
+    - "MERGE `voonik-tech.boopathy.name` T 
 USING (select * except(num) from 
 	(select *,
 	row_number() over (partition by json_extract(_airbyte_data,'$.id') order by json_extract_scalar(_airbyte_data,'$._ab_cdc_updated_at') desc) num from `voonik-tech.boopathy._airbyte_raw_name`) where num=1 )S 
