@@ -16,32 +16,5 @@ clean-targets:
     - "logs"
 
 models:
-  +pre-hook:
-    - "MERGE `voonik-tech.boopathy.name` T 
-USING (select * except(num) from 
-	(select *,
-	row_number() over (partition by json_extract(_airbyte_data,'$.id') order by json_extract_scalar(_airbyte_data,'$._ab_cdc_updated_at') desc) num from `voonik-tech.boopathy._airbyte_raw_name`) where num=1 )S 
-ON T.id = cast(json_extract(S._airbyte_data,'$.id') as int)
-
-WHEN MATCHED AND (cast(json_extract_scalar(S._airbyte_data,'$._ab_cdc_updated_at') as int) >= T._ab_cdc_updated_at) AND json_extract_scalar(S._airbyte_data,'$._ab_cdc_deleted_at') is null
-THEN UPDATE SET 
-id = cast(json_extract_scalar(S._airbyte_data,'$.id') as int),
-name = cast(json_extract_scalar(S._airbyte_data,'$.name') as string),
-created_at = cast(json_extract_scalar(S._airbyte_data,'$.created_at') as timestamp),
-updated_at = cast(json_extract_scalar(S._airbyte_data,'$.updated_at') as timestamp),
-_ab_cdc_updated_at = cast(json_extract_scalar(S._airbyte_data,'$._ab_cdc_updated_at') as int)
-
-WHEN MATCHED AND json_extract_scalar(S._airbyte_data,'$._ab_cdc_deleted_at') is not null
-THEN DELETE 
-
-WHEN NOT MATCHED THEN 
-INSERT (id,name,created_at,updated_at,_ab_cdc_updated_at) VALUES ( 
-cast(json_extract_scalar(S._airbyte_data,'$.id') as int),
-cast(json_extract_scalar(S._airbyte_data,'$.name') as string),
-cast(json_extract_scalar(S._airbyte_data,'$.created_at') as timestamp),
-cast(json_extract_scalar(S._airbyte_data,'$.updated_at') as timestamp),
-cast(json_extract_scalar(S._airbyte_data,'$._ab_cdc_updated_at') as int)) "
-  +post-hook:
-    - "truncate table `voonik-tech.boopathy._airbyte_raw_name`"
   airbyte:
       materialized: table
